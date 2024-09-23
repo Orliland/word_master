@@ -6,6 +6,8 @@
 
 :root {
   font-size: 62.5%;
+  font-family: "Noto Sans", sans-serif;
+
   background-color: #ebebeb;
 }
 
@@ -15,6 +17,23 @@
 
   margin: 0 auto;
   max-width: 60rem;
+}
+
+.header {
+  display: flex;
+  justify-content: center;
+}
+
+.logo {
+  margin: 6rem auto 4rem;
+
+  font-size: 3.2rem;
+}
+
+.board {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
 }
 
 .board__try {
@@ -35,6 +54,11 @@
 
   text-align: center;
   font-size: 4rem;
+  font-weight: bold;
 
   box-shadow: inset 6px 6px 12px #bababa, inset -6px -6px 12px #ffffff;
+}
+
+.board__input:focus {
+  outline: none;
 }

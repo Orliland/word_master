@@ -1,14 +1,46 @@
+const URL_GET_WORD = "https://words.dev-apis.com/word-of-the-day";
+
+let word;
+let row = 1;
+
 function isLetter(letter) {
   return /^[a-zA-Z]$/.test(letter);
 }
 
-function checkCompleteWord(inputs) {
-  let word = "";
+function checkLetters(inputs, wordTry) {
+  const repeatWords = {};
+  for (let i = 0; i < 5; i++) {
+    if (wordTry[i] == word[i]) {
+      inputs[i].classList.add("green");
+    } else if (word.includes(wordTry[i])) {
+      repeatWords[wordTry[i]] = i;
+      inputs[i].classList.add("yellow");
+    } else {
+      inputs[i].classList.add("red");
+    }
+  }
+}
+
+async function checkCompleteWord(inputs) {
+  let wordTry = "";
   inputs.forEach((input) => {
-    word += input.value;
+    wordTry += input.value.toLowerCase();
   });
-  if (word.length == 5) {
-    // Realizar Evaluación con API
+
+  if (wordTry.length == 5) {
+    if (wordTry == word) {
+      alert("GANASTE!");
+    } else {
+      if (row < 6) {
+        row += 1;
+      } else {
+        gameOver();
+      }
+
+      checkLetters(inputs, wordTry);
+
+      setRowActive(row);
+    }
   }
 }
 
@@ -20,6 +52,8 @@ function setRowActive(activeRow) {
   const inputsDisabled = [
     ...document.querySelectorAll(`.board__input:not(.r${activeRow})`),
   ];
+
+  inputsAbles[0].focus();
 
   for (let i = 0; i < inputsAbles.length; i++) {
     const element = inputsAbles[i];
@@ -54,4 +88,14 @@ function setRowActive(activeRow) {
   });
 }
 
-setRowActive(4);
+function getWord() {
+  const peticion = fetch(URL_GET_WORD);
+  peticion
+    .then((response) => response.json())
+    .then((response) => {
+      word = response.word;
+      setRowActive(row);
+    });
+}
+
+getWord();

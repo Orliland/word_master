@@ -65,6 +65,21 @@
   outline: none;
 }
 
+.green {
+  background-color: #00ff00;
+  box-shadow: inset 6px 6px 12px #00d600, inset -6px -6px 12px #00ff00;
+}
+
+.red {
+  background: #ff0000;
+  box-shadow: inset 6px 6px 12px #d60000, inset -6px -6px 12px #ff0000;
+}
+
+.yellow {
+  background: #fbff00;
+  box-shadow: inset 6px 6px 12px #d3d600, inset -6px -6px 12px #ffff00;
+}
+
 @media (min-width: 768px) {
   .board,
   .board__try {

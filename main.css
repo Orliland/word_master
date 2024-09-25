@@ -12,12 +12,13 @@
 }
 
 .main {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  place-content: center;
 
   margin: 0 auto;
   padding: 3.2rem;
   max-width: 60rem;
+  min-height: 100vh;
 }
 
 .header {
@@ -26,7 +27,7 @@
 }
 
 .logo {
-  margin: 6rem auto 4rem;
+  margin: 0 auto 3rem;
 
   font-size: 3.2rem;
 }

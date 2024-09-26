@@ -8,17 +8,38 @@ function isLetter(letter) {
 }
 
 function checkLetters(inputs, wordTry) {
-  const repeatWords = {};
-  for (let i = 0; i < 5; i++) {
-    if (wordTry[i] == word[i]) {
-      inputs[i].classList.add("green");
-    } else if (word.includes(wordTry[i])) {
-      repeatWords[wordTry[i]] = i;
-      inputs[i].classList.add("yellow");
+  const countLetters = [...word].reduce((acc, vActual) => {
+    acc[vActual] = (acc[vActual] || 0) + 1;
+    return acc;
+  }, {});
+
+  const letters = [...wordTry].map((l, i) => {
+    if (l == word[i]) {
+      return { letter: l, index: i, status: "green" };
+    } else if (word.includes(l)) {
+      return { letter: l, index: i, status: "yellow" };
     } else {
-      inputs[i].classList.add("red");
+      return { letter: l, index: i, status: "error" };
     }
-  }
+  });
+
+  const filterYellowLetters = letters.map((e, i) => {
+    if (e.status == "yellow") {
+      let count = letters.filter((l) => l.letter == e.letter);
+      if (count.length > countLetters[e.letter]) {
+        e.status = "error";
+        return e;
+      } else {
+        return e;
+      }
+    } else {
+      return e;
+    }
+  });
+
+  filterYellowLetters.forEach((e) => {
+    inputs[e.index].classList.add(e.status);
+  });
 }
 
 async function checkCompleteWord(inputs) {
@@ -61,7 +82,6 @@ function setRowActive(activeRow) {
     element.maxLength = 1;
 
     element.addEventListener("keyup", (event) => {
-      // TODO: Refactorizar y convertir en una función
       if (
         !isLetter(event.key) &&
         event.key != "Backspace" &&

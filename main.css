@@ -65,19 +65,23 @@
   outline: none;
 }
 
-.green {
-  background-color: #00ff00;
-  box-shadow: inset 6px 6px 12px #00d600, inset -6px -6px 12px #00ff00;
+.board__input:disabled {
+  color: black;
 }
 
-.red {
-  background: #ff0000;
-  box-shadow: inset 6px 6px 12px #d60000, inset -6px -6px 12px #ff0000;
+.green {
+  background: #02b602 !important;
+  box-shadow: inset 6px 6px 12px #029902, inset -6px -6px 12px #02d302 !important;
+}
+
+.error {
+  background: #bdbdbd !important;
+  box-shadow: inset 6px 6px 12px #9f9f9f, inset -6px -6px 12px #dbdbdb !important;
 }
 
 .yellow {
-  background: #fbff00;
-  box-shadow: inset 6px 6px 12px #d3d600, inset -6px -6px 12px #ffff00;
+  background: #dade02 !important;
+  box-shadow: inset 6px 6px 12px #b7ba02, inset -6px -6px 12px #fdff02 !important;
 }
 
 @media (min-width: 768px) {

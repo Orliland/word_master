@@ -50,7 +50,7 @@ async function checkCompleteWord(inputs) {
 
   if (wordTry.length == 5) {
     if (wordTry == word) {
-      alert("GANASTE!");
+      youWin();
     } else {
       if (row < 6) {
         row += 1;
@@ -65,7 +65,7 @@ async function checkCompleteWord(inputs) {
   }
 }
 
-function setRowActive(activeRow) {
+async function setRowActive(activeRow) {
   const inputsAbles = [
     ...document.querySelectorAll(`.board__input.r${activeRow}`),
   ];
@@ -81,7 +81,7 @@ function setRowActive(activeRow) {
     element.removeAttribute("disabled");
     element.maxLength = 1;
 
-    element.addEventListener("keyup", (event) => {
+    element.addEventListener("keydown", (event) => {
       if (
         !isLetter(event.key) &&
         event.key != "Backspace" &&
@@ -96,6 +96,7 @@ function setRowActive(activeRow) {
         checkCompleteWord(inputsAbles);
       } else {
         inputsAbles[i].value = event.key;
+        event.preventDefault();
         if (i < inputsAbles.length - 1) {
           inputsAbles[i + 1].focus();
         }

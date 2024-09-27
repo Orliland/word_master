@@ -14,28 +14,45 @@ function checkLetters(inputs, wordTry) {
   }, {});
 
   const letters = [...wordTry].map((l, i) => {
+    const dicLetter = { letter: l, index: i };
     if (l == word[i]) {
-      return { letter: l, index: i, status: "green" };
+      dicLetter["status"] = "green";
     } else if (word.includes(l)) {
-      return { letter: l, index: i, status: "yellow" };
+      dicLetter["status"] = "yellow";
     } else {
-      return { letter: l, index: i, status: "error" };
+      dicLetter["status"] = "error";
     }
+    return dicLetter;
   });
 
-  const filterYellowLetters = letters.map((e, i) => {
-    if (e.status == "yellow") {
-      let count = letters.filter((l) => l.letter == e.letter);
-      if (count.length > countLetters[e.letter]) {
-        e.status = "error";
-        return e;
+  const filterYellowLetters = letters.map((letter, index) => {
+    if (letter.status == "yellow") {
+      let count = letters.filter((l) => l.letter == letter.letter).length; // Cuantas veces aparece la letra actual
+      const countGreenLetters = letters.filter((l) => {
+        // Cuantas veces aparece en verde la letra actual
+        return l.letter == letter.letter && l.status == "green";
+      }).length;
+      console.log(count);
+
+      if (count > countGreenLetters) {
+        count -= 1;
       } else {
-        return e;
+        letter.status = "error";
       }
-    } else {
-      return e;
     }
+    return letter;
   });
+
+  // const filterYellowLetters = letters.map((e, i) => {
+  //   if (e.status == "yellow") {
+  //     let count = letters.filter((l) => l.letter == e.letter);
+
+  //     if (count.length > countLetters[e.letter]) {
+  //       e.status = "error";
+  //     }
+  //   }
+  //   return e;
+  // });
 
   filterYellowLetters.forEach((e) => {
     inputs[e.index].classList.add(e.status);
@@ -81,25 +98,24 @@ async function setRowActive(activeRow) {
     element.removeAttribute("disabled");
     element.maxLength = 1;
 
+    // Refactor event listener, I like more the way Brian code this part
     element.addEventListener("keydown", (event) => {
-      if (
-        !isLetter(event.key) &&
-        event.key != "Backspace" &&
-        event.key != "Enter"
-      ) {
-        event.preventDefault();
-      } else if (event.key == "Backspace") {
-        if (i > 0 && element.value == "") {
+      const action = event.key;
+
+      if (action === "Enter") {
+        checkCompleteWord(inputsAbles);
+      } else if (action === "Backspace") {
+        if (i > 0 && element.value === "") {
           inputsAbles[i - 1].focus();
         }
-      } else if (event.key == "Enter") {
-        checkCompleteWord(inputsAbles);
-      } else {
-        inputsAbles[i].value = event.key;
+      } else if (isLetter(action)) {
+        inputsAbles[i].value = action;
         event.preventDefault();
         if (i < inputsAbles.length - 1) {
           inputsAbles[i + 1].focus();
         }
+      } else {
+        event.preventDefault();
       }
     });
   }

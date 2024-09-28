@@ -35,7 +35,11 @@ function checkLetters(inputs, wordTry) {
   }
 }
 
-async function checkCompleteWord(inputs) {
+const winnerModal = document.querySelector(".winner");
+const loserModal = document.querySelector(".loser");
+const loserWord = document.querySelector(".modal__word");
+
+function checkCompleteWord(inputs) {
   let wordTry = "";
   inputs.forEach((input) => {
     wordTry += input.value;
@@ -43,19 +47,23 @@ async function checkCompleteWord(inputs) {
 
   if (wordTry.length == 5) {
     if (wordTry == word) {
-      youWin();
+      inputs.forEach((e) => {
+        e.disabled = true;
+      });
+      winnerModal.style.display = "block";
     } else {
       if (row < 6) {
         row += 1;
+        setRowActive(row);
       } else {
-        checkLetters(inputs, wordTry);
-
-        gameOver();
+        inputs.forEach((e) => {
+          e.disabled = true;
+        });
+        loserModal.style.display = "block";
+        loserWord.innerText = word.join("");
       }
-
-      checkLetters(inputs, wordTry);
-      setRowActive(row);
     }
+    checkLetters(inputs, wordTry);
   }
 }
 

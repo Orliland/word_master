@@ -39,6 +39,22 @@ const winnerModal = document.querySelector(".winner");
 const loserModal = document.querySelector(".loser");
 const loserWord = document.querySelector(".modal__word");
 
+// const buttonModal = document.querySelector(".modal__button");
+// const form = document.querySelector(".board");
+
+// buttonModal.addEventListener("click", (e) => {
+//   form.reset();
+//   document.querySelectorAll(`.board__input`).forEach((input) => {
+//     input.classList.remove("success");
+//     input.classList.remove("alert");
+//     input.classList.remove("error");
+//   });
+//   row = 1;
+//   setRowActive(row);
+//   winnerModal.style.display = "none";
+//   loserModal.style.display = "none";
+// });
+
 function checkCompleteWord(inputs) {
   let wordTry = "";
   inputs.forEach((input) => {
@@ -51,6 +67,7 @@ function checkCompleteWord(inputs) {
         e.disabled = true;
       });
       winnerModal.style.display = "block";
+      row = 1;
     } else {
       if (row < 6) {
         row += 1;
@@ -61,6 +78,7 @@ function checkCompleteWord(inputs) {
         });
         loserModal.style.display = "block";
         loserWord.innerText = word.join("");
+        row = 1;
       }
     }
     checkLetters(inputs, wordTry);

@@ -54,7 +54,6 @@ async function checkCompleteWord(inputs) {
       }
 
       checkLetters(inputs, wordTry);
-
       setRowActive(row);
     }
   }
@@ -69,6 +68,7 @@ async function setRowActive(activeRow) {
     ...document.querySelectorAll(`.board__input:not(.r${activeRow})`),
   ];
 
+  inputsAbles[0].disabled = false;
   inputsAbles[0].focus();
 
   for (let i = 0; i < inputsAbles.length; i++) {

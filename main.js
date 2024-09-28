@@ -48,6 +48,8 @@ async function checkCompleteWord(inputs) {
       if (row < 6) {
         row += 1;
       } else {
+        checkLetters(inputs, wordTry);
+
         gameOver();
       }
 
@@ -101,14 +103,13 @@ async function setRowActive(activeRow) {
   });
 }
 
-function getWord() {
-  const peticion = fetch(URL_GET_WORD);
-  peticion
-    .then((response) => response.json())
-    .then((response) => {
-      word = response.word.toUpperCase();
-      setRowActive(row);
-    });
+async function getWord(random) {
+  // TODO: Agregar indicador de cargando el cual no se quitara hasta que no cargue la palabra
+  const URL = random ? URL_GET_WORD + "?random=1" : URL_GET_WORD;
+  const res = await fetch(URL);
+  const resObj = await res.json();
+  word = resObj.word.toUpperCase();
+  setRowActive(row);
 }
 
-getWord();
+getWord(false);

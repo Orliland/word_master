@@ -8,61 +8,37 @@ function isLetter(letter) {
 }
 
 function checkLetters(inputs, wordTry) {
-  const countLetters = [...word].reduce((acc, vActual) => {
+  word = [...word];
+  wordTry = [...wordTry];
+
+  let countLetters = [...word].reduce((acc, vActual) => {
     acc[vActual] = (acc[vActual] || 0) + 1;
     return acc;
   }, {});
 
-  const letters = [...wordTry].map((l, i) => {
-    const dicLetter = { letter: l, index: i };
-    if (l == word[i]) {
-      dicLetter["status"] = "green";
-    } else if (word.includes(l)) {
-      dicLetter["status"] = "yellow";
+  for (let i = 0; i < 5; i++) {
+    if (word[i] === wordTry[i]) {
+      inputs[i].classList.add("success");
+      countLetters[word[i]]--;
+    }
+  }
+
+  for (let i = 0; i < 5; i++) {
+    if (word[i] === wordTry[i]) {
+      // do nothing
+    } else if (word.includes(wordTry[i]) && countLetters[wordTry[i]] > 0) {
+      inputs[i].classList.add("alert");
+      countLetters[word[i]]--;
     } else {
-      dicLetter["status"] = "error";
+      inputs[i].classList.add("error");
     }
-    return dicLetter;
-  });
-
-  const filterYellowLetters = letters.map((letter, index) => {
-    if (letter.status == "yellow") {
-      let count = letters.filter((l) => l.letter == letter.letter).length; // Cuantas veces aparece la letra actual
-      const countGreenLetters = letters.filter((l) => {
-        // Cuantas veces aparece en verde la letra actual
-        return l.letter == letter.letter && l.status == "green";
-      }).length;
-      console.log(count);
-
-      if (count > countGreenLetters) {
-        count -= 1;
-      } else {
-        letter.status = "error";
-      }
-    }
-    return letter;
-  });
-
-  // const filterYellowLetters = letters.map((e, i) => {
-  //   if (e.status == "yellow") {
-  //     let count = letters.filter((l) => l.letter == e.letter);
-
-  //     if (count.length > countLetters[e.letter]) {
-  //       e.status = "error";
-  //     }
-  //   }
-  //   return e;
-  // });
-
-  filterYellowLetters.forEach((e) => {
-    inputs[e.index].classList.add(e.status);
-  });
+  }
 }
 
 async function checkCompleteWord(inputs) {
   let wordTry = "";
   inputs.forEach((input) => {
-    wordTry += input.value.toLowerCase();
+    wordTry += input.value;
   });
 
   if (wordTry.length == 5) {
@@ -109,7 +85,7 @@ async function setRowActive(activeRow) {
           inputsAbles[i - 1].focus();
         }
       } else if (isLetter(action)) {
-        inputsAbles[i].value = action;
+        inputsAbles[i].value = action.toUpperCase();
         event.preventDefault();
         if (i < inputsAbles.length - 1) {
           inputsAbles[i + 1].focus();
@@ -130,7 +106,7 @@ function getWord() {
   peticion
     .then((response) => response.json())
     .then((response) => {
-      word = response.word;
+      word = response.word.toUpperCase();
       setRowActive(row);
     });
 }

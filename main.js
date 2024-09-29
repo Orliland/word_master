@@ -4,7 +4,7 @@ let guessWord;
 let randomGame = false; // Indicate if the game is with a random word
 let TRY = 0;
 
-const INPUTS = [...document.querySelectorAll(".board__input")];
+let INPUTS = [...document.querySelectorAll(".board__input")];
 const FORM = document.querySelector(".board");
 const MODAL = document.querySelector(".modal");
 const modalCanvas = document.querySelector(".modal__canvas");
@@ -18,10 +18,7 @@ startButton.addEventListener("click", (e) => {
   }
 });
 
-function cleanBoard(cleanClasses) {
-  guessWord = "";
-  TRY = 0;
-
+function cleanBoard() {
   INPUTS.forEach((input) => {
     input.disabled = true;
     input.maxLength = 1;
@@ -29,13 +26,17 @@ function cleanBoard(cleanClasses) {
     input.classList.remove("success");
     input.classList.remove("alert");
     input.classList.remove("error");
+    input.removeAttribute("onkeydown");
   });
 }
 
 async function startGame() {
+  guessWord = "";
+  TRY = 0;
   WORD = await getWord(randomGame);
 
-  cleanBoard(false);
+  cleanBoard();
+
   MODAL.style.display = "none";
   playTry();
 }
@@ -62,6 +63,29 @@ async function getWord(isRandom) {
   return word;
 }
 
+let ROWTRY;
+
+function handleKeyDown(input, event, index) {
+  const action = event.key;
+
+  if (action === "Enter") {
+    validateGuessWord(ROWTRY);
+  } else if (action === "Backspace") {
+    if (index > 0 && input.value === "") {
+      ROWTRY[index - 1].focus();
+    }
+  } else if (isLetter(action)) {
+    input.value = action.toUpperCase();
+    event.preventDefault();
+
+    if (index < ROWTRY.length - 1) {
+      ROWTRY[index + 1].focus();
+    }
+  } else {
+    event.preventDefault();
+  }
+}
+
 function playTry() {
   const rowTry = INPUTS.filter((input) => {
     input.disabled = true;
@@ -71,30 +95,12 @@ function playTry() {
   rowTry[0].disabled = false;
   rowTry[0].focus();
 
+  ROWTRY = rowTry;
+
   rowTry.forEach((input, index) => {
     input.removeAttribute("disabled");
 
-    input.addEventListener("keydown", (event) => {
-      const action = event.key;
-
-      if (action === "Enter") {
-        validateGuessWord(rowTry);
-      } else if (action === "Backspace") {
-        if (index > 0 && input.value === "") {
-          rowTry[index - 1].focus();
-        }
-      } else if (isLetter(action)) {
-        input.value = action.toUpperCase();
-        event.preventDefault();
-
-        if (index < rowTry.length - 1) {
-          // Jump to the next input
-          rowTry[index + 1].focus();
-        }
-      } else {
-        event.preventDefault();
-      }
-    });
+    input.setAttribute("onkeydown", `handleKeyDown(this, event, ${index})`);
   });
 }
 

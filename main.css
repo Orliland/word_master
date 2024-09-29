@@ -90,6 +90,7 @@
   position: fixed;
   top: 0;
 
+  padding: 2.4rem;
   width: 100vw;
   height: 100vh;
 
@@ -100,7 +101,7 @@
   position: relative;
   margin: 12rem auto 3.2rem;
   padding: 2.4rem;
-  width: 100%;
+
   max-width: 50rem;
   border-radius: 2rem;
 

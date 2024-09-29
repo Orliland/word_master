@@ -28,6 +28,9 @@ function cleanBoard() {
     input.classList.remove("error");
     input.removeAttribute("onkeydown");
   });
+
+  modalCanvas.classList.remove("win");
+  modalCanvas.classList.remove("lose");
 }
 
 async function startGame() {

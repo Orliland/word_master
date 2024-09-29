@@ -1,8 +1,10 @@
 const URL_GET_WORD = "https://words.dev-apis.com/word-of-the-day";
 let WORD;
+let guessWord;
 let randomGame = false; // Indicate if the game is with a random word
+let TRY = 0;
 
-const INPUTS = document.querySelectorAll(".board__input");
+const INPUTS = [...document.querySelectorAll(".board__input")];
 const FORM = document.querySelector(".board");
 const MODAL = document.querySelector(".modal");
 const modalCanvas = document.querySelector(".modal__canvas");
@@ -17,23 +19,23 @@ startButton.addEventListener("click", (e) => {
 });
 
 function cleanBoard(cleanClasses) {
+  guessWord = "";
+  TRY = 0;
+
   INPUTS.forEach((input) => {
     input.disabled = true;
-    if (cleanClasses) {
-      input.classList.remove("success");
-      input.classList.remove("alert");
-      input.classList.remove("error");
-    }
+    input.maxLength = 1;
+    input.value = "";
+    input.classList.remove("success");
+    input.classList.remove("alert");
+    input.classList.remove("error");
   });
-
-  if (cleanClasses) {
-    FORM.reset();
-  }
 }
 
 async function startGame() {
   WORD = await getWord(randomGame);
-  cleanBoard(true);
+
+  cleanBoard(false);
   MODAL.style.display = "none";
   playTry();
 }
@@ -47,7 +49,6 @@ function endGame(result) {
         </p>`,
   };
 
-  cleanBoard(false);
   modalCanvas.innerHTML = messages[result];
   modalCanvas.classList.add(result);
   MODAL.style.display = "block";
@@ -61,23 +62,74 @@ async function getWord(isRandom) {
   return word;
 }
 
-function playTry() {}
+function playTry() {
+  const rowTry = INPUTS.filter((input) => {
+    input.disabled = true;
+    return input.classList.contains(`r${TRY}`);
+  });
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  rowTry[0].disabled = false;
+  rowTry[0].focus();
 
-let word;
-let row = 1;
+  rowTry.forEach((input, index) => {
+    input.removeAttribute("disabled");
+
+    input.addEventListener("keydown", (event) => {
+      const action = event.key;
+
+      if (action === "Enter") {
+        validateGuessWord(rowTry);
+      } else if (action === "Backspace") {
+        if (index > 0 && input.value === "") {
+          rowTry[index - 1].focus();
+        }
+      } else if (isLetter(action)) {
+        input.value = action.toUpperCase();
+        event.preventDefault();
+
+        if (index < rowTry.length - 1) {
+          // Jump to the next input
+          rowTry[index + 1].focus();
+        }
+      } else {
+        event.preventDefault();
+      }
+    });
+  });
+}
 
 function isLetter(letter) {
   return /^[a-zA-Z]$/.test(letter);
 }
 
-function checkLetters(inputs, wordTry) {
-  wordList = [...word];
-  wordTry = [...wordTry];
+function validateGuessWord(inputs) {
+  guessWord = inputs
+    .map((input) => {
+      return input.value;
+    })
+    .join("");
+
+  if (guessWord.length === 5) {
+    checkLetters(inputs);
+
+    if (guessWord === WORD) {
+      endGame("win");
+    } else {
+      if (TRY < 5) {
+        TRY += 1;
+
+        playTry();
+      } else {
+        endGame("lose");
+      }
+    }
+  } else {
+  }
+}
+
+function checkLetters(inputs) {
+  wordList = [...WORD];
+  tryList = [...guessWord];
 
   let countLetters = [...wordList].reduce((acc, vActual) => {
     acc[vActual] = (acc[vActual] || 0) + 1;
@@ -85,121 +137,20 @@ function checkLetters(inputs, wordTry) {
   }, {});
 
   for (let i = 0; i < 5; i++) {
-    if (wordList[i] === wordTry[i]) {
+    if (wordList[i] === tryList[i]) {
       inputs[i].classList.add("success");
       countLetters[wordList[i]]--;
     }
   }
 
   for (let i = 0; i < 5; i++) {
-    if (wordList[i] === wordTry[i]) {
+    if (wordList[i] === tryList[i]) {
       // do nothing
-    } else if (wordList.includes(wordTry[i]) && countLetters[wordTry[i]] > 0) {
+    } else if (wordList.includes(tryList[i]) && countLetters[tryList[i]] > 0) {
       inputs[i].classList.add("alert");
-      countLetters[wordList[i]]--;
+      countLetters[tryList[i]]--;
     } else {
       inputs[i].classList.add("error");
     }
   }
-}
-
-// const winnerModal = document.querySelector(".winner");
-// const loserModal = document.querySelector(".loser");
-// const loserWord = document.querySelector(".modal__word");
-
-// const buttonModal = document.querySelectorAll(".modal__button");
-// const form = document.querySelector(".board");
-
-// buttonModal.forEach((button) => {
-//   button.addEventListener("click", newGame);
-// });
-
-function newGame() {
-  row = 1;
-
-  form.reset();
-  document.querySelectorAll(".modal").forEach((modal) => {
-    modal.style.display = "none";
-  });
-
-  document.querySelectorAll(`.board__input`).forEach((input) => {
-    input.classList.remove("success");
-    input.classList.remove("alert");
-    input.classList.remove("error");
-  });
-
-  getWord(true);
-}
-
-function checkCompleteWord(inputs) {
-  const guess = inputs
-    .map((input) => {
-      return input.value;
-    })
-    .join("");
-
-  if (guess.length == 5) {
-    checkLetters(inputs, guess);
-
-    if (guess === word) {
-      winnerModal.style.display = "block";
-      inputs.forEach((e) => {
-        e.disabled = true;
-      });
-    } else {
-      if (row < 6) {
-        row += 1;
-        setRowActive(row);
-      } else {
-        loserModal.style.display = "block";
-        loserWord.innerText = word;
-
-        inputs.forEach((e) => {
-          e.disabled = true;
-        });
-      }
-    }
-  }
-}
-
-async function setRowActive() {
-  const inputsAbles = [...document.querySelectorAll(`.board__input.r${row}`)];
-
-  const inputsDisabled = [
-    ...document.querySelectorAll(`.board__input:not(.r${row})`),
-  ];
-
-  inputsAbles[0].disabled = false;
-  inputsAbles[0].focus();
-
-  for (let i = 0; i < inputsAbles.length; i++) {
-    const element = inputsAbles[i];
-    element.removeAttribute("disabled");
-    element.maxLength = 1;
-
-    // Refactor event listener, I like more the way Brian code this part
-    element.addEventListener("keydown", (event) => {
-      const action = event.key;
-
-      if (action === "Enter") {
-        checkCompleteWord(inputsAbles);
-      } else if (action === "Backspace") {
-        if (i > 0 && element.value === "") {
-          inputsAbles[i - 1].focus();
-        }
-      } else if (isLetter(action)) {
-        inputsAbles[i].value = action.toUpperCase();
-        event.preventDefault();
-        if (i < inputsAbles.length - 1) {
-          inputsAbles[i + 1].focus();
-        }
-      } else {
-        event.preventDefault();
-      }
-    });
-  }
-
-  inputsDisabled.forEach((e) => {
-    e.disabled = true;
-  });
 }

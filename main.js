@@ -5,6 +5,7 @@ let randomGame = false; // Indicate if the game is with a random word
 const INPUTS = document.querySelectorAll(".board__input");
 const FORM = document.querySelector(".board");
 const MODAL = document.querySelector(".modal");
+const modalCanvas = document.querySelector(".modal__canvas");
 const startButton = document.querySelector(".modal__button");
 
 // Listen to Start Game Button
@@ -15,31 +16,41 @@ startButton.addEventListener("click", (e) => {
   }
 });
 
-function cleanBoard() {
+function cleanBoard(cleanClasses) {
   INPUTS.forEach((input) => {
     input.disabled = true;
-    input.classList.remove("success");
-    input.classList.remove("alert");
-    input.classList.remove("error");
+    if (cleanClasses) {
+      input.classList.remove("success");
+      input.classList.remove("alert");
+      input.classList.remove("error");
+    }
   });
 
-  FORM.reset();
+  if (cleanClasses) {
+    FORM.reset();
+  }
 }
 
-// TODO: Función para manejar el inicio del juego
 async function startGame() {
   WORD = await getWord(randomGame);
-  cleanBoard();
+  cleanBoard(true);
   MODAL.style.display = "none";
   playTry();
 }
 
-// TODO: Función para manejar el final del juego
 function endGame(result) {
   const messages = {
-    win: "",
-    lose: "",
+    win: `<h2 class="modal__title">You Win!</h2>`,
+    lose: `<h2 class="modal__title">You Lose!</h2>
+        <p class="modal__text">
+          The correct word was <b>${WORD}</b>
+        </p>`,
   };
+
+  cleanBoard(false);
+  modalCanvas.innerHTML = messages[result];
+  modalCanvas.classList.add(result);
+  MODAL.style.display = "block";
 }
 
 async function getWord(isRandom) {

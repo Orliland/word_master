@@ -1,4 +1,61 @@
 const URL_GET_WORD = "https://words.dev-apis.com/word-of-the-day";
+let WORD;
+let randomGame = false; // Indicate if the game is with a random word
+
+const INPUTS = document.querySelectorAll(".board__input");
+const FORM = document.querySelector(".board");
+const MODAL = document.querySelector(".modal");
+const startButton = document.querySelector(".modal__button");
+
+// Listen to Start Game Button
+startButton.addEventListener("click", (e) => {
+  startGame();
+  if (!randomGame) {
+    randomGame = true;
+  }
+});
+
+function cleanBoard() {
+  INPUTS.forEach((input) => {
+    input.disabled = true;
+    input.classList.remove("success");
+    input.classList.remove("alert");
+    input.classList.remove("error");
+  });
+
+  FORM.reset();
+}
+
+// TODO: Función para manejar el inicio del juego
+async function startGame() {
+  WORD = await getWord(randomGame);
+  cleanBoard();
+  MODAL.style.display = "none";
+  playTry();
+}
+
+// TODO: Función para manejar el final del juego
+function endGame(result) {
+  const messages = {
+    win: "",
+    lose: "",
+  };
+}
+
+async function getWord(isRandom) {
+  const URL = isRandom ? URL_GET_WORD + "?random=1" : URL_GET_WORD;
+  const res = await fetch(URL);
+  const resObj = await res.json();
+  const word = resObj.word.toUpperCase();
+  return word;
+}
+
+function playTry() {}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 let word;
 let row = 1;
@@ -8,90 +65,97 @@ function isLetter(letter) {
 }
 
 function checkLetters(inputs, wordTry) {
-  word = [...word];
+  wordList = [...word];
   wordTry = [...wordTry];
 
-  let countLetters = [...word].reduce((acc, vActual) => {
+  let countLetters = [...wordList].reduce((acc, vActual) => {
     acc[vActual] = (acc[vActual] || 0) + 1;
     return acc;
   }, {});
 
   for (let i = 0; i < 5; i++) {
-    if (word[i] === wordTry[i]) {
+    if (wordList[i] === wordTry[i]) {
       inputs[i].classList.add("success");
-      countLetters[word[i]]--;
+      countLetters[wordList[i]]--;
     }
   }
 
   for (let i = 0; i < 5; i++) {
-    if (word[i] === wordTry[i]) {
+    if (wordList[i] === wordTry[i]) {
       // do nothing
-    } else if (word.includes(wordTry[i]) && countLetters[wordTry[i]] > 0) {
+    } else if (wordList.includes(wordTry[i]) && countLetters[wordTry[i]] > 0) {
       inputs[i].classList.add("alert");
-      countLetters[word[i]]--;
+      countLetters[wordList[i]]--;
     } else {
       inputs[i].classList.add("error");
     }
   }
 }
 
-const winnerModal = document.querySelector(".winner");
-const loserModal = document.querySelector(".loser");
-const loserWord = document.querySelector(".modal__word");
+// const winnerModal = document.querySelector(".winner");
+// const loserModal = document.querySelector(".loser");
+// const loserWord = document.querySelector(".modal__word");
 
-// const buttonModal = document.querySelector(".modal__button");
+// const buttonModal = document.querySelectorAll(".modal__button");
 // const form = document.querySelector(".board");
 
-// buttonModal.addEventListener("click", (e) => {
-//   form.reset();
-//   document.querySelectorAll(`.board__input`).forEach((input) => {
-//     input.classList.remove("success");
-//     input.classList.remove("alert");
-//     input.classList.remove("error");
-//   });
-//   row = 1;
-//   setRowActive(row);
-//   winnerModal.style.display = "none";
-//   loserModal.style.display = "none";
+// buttonModal.forEach((button) => {
+//   button.addEventListener("click", newGame);
 // });
 
-function checkCompleteWord(inputs) {
-  let wordTry = "";
-  inputs.forEach((input) => {
-    wordTry += input.value;
+function newGame() {
+  row = 1;
+
+  form.reset();
+  document.querySelectorAll(".modal").forEach((modal) => {
+    modal.style.display = "none";
   });
 
-  if (wordTry.length == 5) {
-    if (wordTry == word) {
+  document.querySelectorAll(`.board__input`).forEach((input) => {
+    input.classList.remove("success");
+    input.classList.remove("alert");
+    input.classList.remove("error");
+  });
+
+  getWord(true);
+}
+
+function checkCompleteWord(inputs) {
+  const guess = inputs
+    .map((input) => {
+      return input.value;
+    })
+    .join("");
+
+  if (guess.length == 5) {
+    checkLetters(inputs, guess);
+
+    if (guess === word) {
+      winnerModal.style.display = "block";
       inputs.forEach((e) => {
         e.disabled = true;
       });
-      winnerModal.style.display = "block";
-      row = 1;
     } else {
       if (row < 6) {
         row += 1;
         setRowActive(row);
       } else {
+        loserModal.style.display = "block";
+        loserWord.innerText = word;
+
         inputs.forEach((e) => {
           e.disabled = true;
         });
-        loserModal.style.display = "block";
-        loserWord.innerText = word.join("");
-        row = 1;
       }
     }
-    checkLetters(inputs, wordTry);
   }
 }
 
-async function setRowActive(activeRow) {
-  const inputsAbles = [
-    ...document.querySelectorAll(`.board__input.r${activeRow}`),
-  ];
+async function setRowActive() {
+  const inputsAbles = [...document.querySelectorAll(`.board__input.r${row}`)];
 
   const inputsDisabled = [
-    ...document.querySelectorAll(`.board__input:not(.r${activeRow})`),
+    ...document.querySelectorAll(`.board__input:not(.r${row})`),
   ];
 
   inputsAbles[0].disabled = false;
@@ -128,14 +192,3 @@ async function setRowActive(activeRow) {
     e.disabled = true;
   });
 }
-
-async function getWord(random) {
-  // TODO: Agregar indicador de cargando el cual no se quitara hasta que no cargue la palabra
-  const URL = random ? URL_GET_WORD + "?random=1" : URL_GET_WORD;
-  const res = await fetch(URL);
-  const resObj = await res.json();
-  word = resObj.word.toUpperCase();
-  setRowActive(row);
-}
-
-getWord(false);

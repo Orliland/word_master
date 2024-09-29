@@ -87,8 +87,6 @@
 /* TODO: Agregar animación a la aparición del modal */
 
 .modal {
-  display: none;
-
   position: fixed;
   top: 0;
 
@@ -98,7 +96,7 @@
   background-color: rgba(0, 0, 0, 0.5);
 }
 
-.content {
+.modal__content {
   position: relative;
   margin: 12rem auto 3.2rem;
   padding: 2.4rem;
